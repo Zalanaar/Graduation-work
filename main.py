@@ -41,7 +41,6 @@ class MainApp (QMainWindow):
         #create starting point widget
         self.lab_starting = QLabel("Starting Address", self)
         self.button_starting = QPushButton('Starting save', self)
-        # connect
         self.text_starting = QLineEdit(self)
         self.lab_start_latitude = QLabel("latitude for Start Address")
         self.start_latitude = QDoubleSpinBox(self)
@@ -85,6 +84,9 @@ class MainApp (QMainWindow):
         self.forecast_longitude.setEnabled(False)
         self.lab_forecast_time = QLabel("Forecast Time")
         self.forecast_time = QTimeEdit()
+
+
+        self.forecast_button = QPushButton('Forecast!', self)
 
         self.create_window()
         self.setup()
@@ -188,12 +190,16 @@ class MainApp (QMainWindow):
         main = QHBoxLayout()
         main.addWidget(main_box)
         main.addWidget(forecast_box)
-        self.main_frame.setLayout(main)
+        main_vbox = QVBoxLayout()
+        main_vbox.addLayout(main)
+        main_vbox.addWidget(self.forecast_button)
+        self.main_frame.setLayout(main_vbox)
         self.setCentralWidget(self.main_frame)
 
     def setup(self):
         self.button_starting.clicked.connect(self.save_starting_point)
         self.button_waypoint.clicked.connect(self.save_waypoint)
+        self.forecast_button.clicked.connect(self.forecast_data)
 
     def save_starting_point(self):
         star_point_text = self.text_starting.text()
@@ -219,6 +225,9 @@ class MainApp (QMainWindow):
         else:
             self.waypoint_longitude.setValue(waypoint_location.longitude)
             self.waypoint_latitude.setValue(waypoint_location.latitude)
+
+    def forecast_data(self):
+        print("forecast")
 
 
 if __name__ == '__main__':
