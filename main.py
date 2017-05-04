@@ -10,7 +10,8 @@ from geopy.geocoders import Nominatim
 import pandas as pd
 import datetime
 
-import generation as gen
+import generation
+import forecast
 
 class MainApp (QMainWindow):
     def __init__(self):
@@ -94,9 +95,8 @@ class MainApp (QMainWindow):
         try:
             file_open = "CSV (*csv)|* .csv"
             path = (QFileDialog.getOpenFileName(self, 'open file', file_open))
-            self.teacher = pd.read_csv(path[0], ';', nrow=100)
         except Exception:
-            self.statusBar().showMessage('Exception:'% sys.exc_info()[0], 2000)
+            print("fuck")
 
 
     def on_save_file(self):
@@ -107,13 +107,13 @@ class MainApp (QMainWindow):
         self.close()
 
     def generate_way_one(self):
-        gen.way_one()
+        generation.way_one()
 
     def generate_way_two(self):
-        gen.way_two()
+        generation.way_two()
 
     def generate_way_three(self):
-        gen.way_three()
+        generation.way_three()
 
     def create_window(self):
         self.main_frame = QWidget()
@@ -198,17 +198,27 @@ class MainApp (QMainWindow):
     def save_starting_point(self):
         star_point_text = self.text_starting.text()
         geolocator = Nominatim()
-        start_location = geolocator.geocode(star_point_text)
-        self.start_longitude.setValue(start_location.longitude)
-        self.start_latitude.setValue(start_location.latitude)
+        if len(star_point_text) == 0:
+            self.error_message = QMessageBox.information(self, 'Error', 'Starting adress is empty. Please, check correctness of input', QMessageBox.Ok)
+        else:
+            start_location = geolocator.geocode(star_point_text)
+            self.start_longitude.setValue(start_location.longitude)
+            self.start_latitude.setValue(start_location.latitude)
 
 
     def save_waypoint(self):
         waypoint_text = self.text_waypoint.text()
         geolocator = Nominatim()
         waypoint_location = geolocator.geocode(waypoint_text)
-        self.waypoint_longitude.setValue(waypoint_location.longitude)
-        self.waypoint_latitude.setValue(waypoint_location.latitude)
+        #waypoint_location.longitude = None
+        #waypoint_location.latitude = None
+
+        ##I don't fucking know how check wrong address
+        if len(waypoint_text) == 0:
+            self.error_message = QMessageBox.information(self, 'Error', 'Waypoint address is empty. Please, check correctness of input ', QMessageBox.Ok)
+        else:
+            self.waypoint_longitude.setValue(waypoint_location.longitude)
+            self.waypoint_latitude.setValue(waypoint_location.latitude)
 
 
 if __name__ == '__main__':
