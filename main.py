@@ -9,9 +9,9 @@ from PySide import QtCore
 from geopy.geocoders import Nominatim
 import pandas as pd
 import datetime
+import random
 
 import generation
-import forecast
 
 class MainApp (QMainWindow):
     def __init__(self):
@@ -70,10 +70,14 @@ class MainApp (QMainWindow):
         self.waypoint_time = QTimeEdit()
         self.waypoint_time.setTime(datetime.datetime.time(datetime.datetime.now() + datetime.timedelta(minutes=30)))
 
+        self.lab_time = QLabel("Time for Forecast")
+        self.time_for_forc = QTimeEdit()
+
         ############################################    Option Forecast     ############################################
 
         self.lab_text_forecast = QLabel("Forecast Address")
         self.text_forecast = QLineEdit(self)
+        #self.text_forecast.setEnabled(False)
         self.lab_forecast_latitude = QLabel("Forecast latitude Address")
         self.forecast_latitude =QDoubleSpinBox(self)
         self.forecast_latitude.setDecimals(5)
@@ -84,6 +88,7 @@ class MainApp (QMainWindow):
         self.forecast_longitude.setEnabled(False)
         self.lab_forecast_time = QLabel("Forecast Time")
         self.forecast_time = QTimeEdit()
+        self.forecast_time.setEnabled(False)
 
 
         self.forecast_button = QPushButton('Forecast!', self)
@@ -181,8 +186,12 @@ class MainApp (QMainWindow):
         forecast_time = QHBoxLayout()
         forecast_time.addWidget(self.lab_forecast_time)
         forecast_time.addWidget(self.forecast_time)
+        option_forc = QHBoxLayout()
+        option_forc.addWidget(self.lab_time)
+        option_forc.addWidget(self.time_for_forc)
         forecast_label = QLabel("Forecast")
         forecast_vbox.addWidget(forecast_label)
+        #forecast_vbox.addLayout(option_forc)
         forecast_vbox.addLayout(forecast_text_hbox)
         forecast_vbox.addLayout(forecast_coordinate_hbox)
         forecast_vbox.addLayout(forecast_time)
@@ -195,6 +204,8 @@ class MainApp (QMainWindow):
         main_vbox.addWidget(self.forecast_button)
         self.main_frame.setLayout(main_vbox)
         self.setCentralWidget(self.main_frame)
+        self.forecast_button.setEnabled(False)
+
 
     def setup(self):
         self.button_starting.clicked.connect(self.save_starting_point)
@@ -210,6 +221,13 @@ class MainApp (QMainWindow):
             start_location = geolocator.geocode(star_point_text)
             self.start_longitude.setValue(start_location.longitude)
             self.start_latitude.setValue(start_location.latitude)
+            self.start_longitude.setEnabled(False)
+            self.start_latitude.setEnabled(False)
+            self.text_starting.setEnabled(False)
+            self.start_time.setEnabled(False)
+        if self.start_longitude is not None and self.waypoint_longitude is not None: #check this
+            self.forecast_button.setEnabled(True)
+
 
 
     def save_waypoint(self):
@@ -225,9 +243,31 @@ class MainApp (QMainWindow):
         else:
             self.waypoint_longitude.setValue(waypoint_location.longitude)
             self.waypoint_latitude.setValue(waypoint_location.latitude)
+            self.waypoint_longitude.setEnabled(False)
+            self.waypoint_latitude.setEnabled(False)
+            self.text_waypoint.setEnabled(False)
+            self.waypoint_time.setEnabled(False)
 
-    def forecast_data(self):
-        print("forecast")
+    def forecast_data(self): #plug
+        ##unlock option for forecast
+        self.text_starting.setEnabled(True)
+        self.start_time.setEnabled(True)
+        self.start_latitude.setEnabled(True)
+        self.start_longitude.setEnabled(True)
+
+        self.text_waypoint.setEnabled(True)
+        self.waypoint_latitude.setEnabled(True)
+        self.waypoint_longitude.setEnabled(True)
+        self.waypoint_time.setEnabled(True)
+
+        geolocator = Nominatim()
+        random_forecast_longitude = random.uniform(48.69300, 48.71397)
+        random_forecast_latitude = random.uniform(44.50172, 44.52881)
+        self.forecast_longitude.setValue(random_forecast_longitude)
+        self.forecast_latitude.setValue(random_forecast_latitude)
+        forecast_location = geolocator.reverse(str(random_forecast_latitude), str(random_forecast_longitude)) #fix this
+        #print(forecast_location)
+        self.text_forecast.setText(forecast_location.address)
 
 
 if __name__ == '__main__':
